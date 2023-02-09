@@ -242,19 +242,21 @@ setmetatable(transform_lang, {
 -- Checks the availability of the plugin for the current buffer
 -- The availability is cached in a buffer variable (b:nvim_gps_available)
 function M.is_available()
-	if setup_complete and vim.b.nvim_gps_available == nil then
-		local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
-		local config = configs[filelang]
+	vim.defer_fn(function()
+		if setup_complete and vim.b.nvim_gps_available == nil then
+			local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
+			local config = configs[filelang]
 
-		if config.enabled then
-			local has_parser = ts_parsers.has_parser(filelang)
-			local has_query = ts_queries.has_query_files(filelang, "nvimGPS")
+			if config.enabled then
+				local has_parser = ts_parsers.has_parser(filelang)
+				local has_query = ts_queries.has_query_files(filelang, "nvimGPS")
 
-			vim.b.nvim_gps_available = has_parser and has_query
-		else
-			vim.b.nvim_gps_available = false
+				vim.b.nvim_gps_available = has_parser and has_query
+			else
+				vim.b.nvim_gps_available = false
+			end
 		end
-	end
+	end, 10)
 
 	return vim.b.nvim_gps_available
 end
