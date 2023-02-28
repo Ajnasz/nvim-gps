@@ -1,10 +1,10 @@
 ; Struct
-((TopLevelDecl
+((Decl
 	(VarDecl
 		variable_type_function: (IDENTIFIER) @class-name)) @scope-root)
 
 ; Function
-((TopLevelDecl
+((Decl
 	(FnProto
 		function: (IDENTIFIER) @function-name)) @scope-root)
 
