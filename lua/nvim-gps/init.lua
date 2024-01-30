@@ -4,24 +4,62 @@ local ts_queries = require("nvim-treesitter.query")
 local utils = require("nvim-gps.utils")
 
 local ts = vim.treesitter
-local api = api
+local api = vim.api
 
 local M = {}
+
+local icons = {
+	["file"] = "󰈙 ",
+	["module"] = " ",
+	["namespace"] = "󰌗 ",
+	["package"] = " ",
+	["class"] = "󰌗 ",
+	["method"] = "󰆧 ",
+	["property"] = " ",
+	["field"] = " ",
+	["constructor"] = " ",
+	["enum"] = "󰕘",
+	["interface"] = "󰕘",
+	["function"] = "󰊕 ",
+	["variable"] = "󰆧 ",
+	["constant"] = "󰏿 ",
+	["string"] = "󰀬 ",
+	["number"] = "󰎠 ",
+	["boolean"] = "◩ ",
+	["array"] = "󰅪 ",
+	["object"] = "󰅩 ",
+	["key"] = "󰌋 ",
+	["null"] = "󰟢 ",
+	["enummember"] = " ",
+	["struct"] = "󰌗 ",
+	["event"] = " ",
+	["operator"] = "󰆕 ",
+	["typeparameter"] = "󰊄 ",
+	["macro"] = "󰉨 ",
+	["date"] = " ",
+	["time"] = " ",
+	["float"] = "# ",
+	["list"] = " ",
+}
+
+M.icons = icons
 
 -- Default configuration that can be overridden by users
 local default_config = {
     enabled = true,
     disable_icons = false,
     icons = {
-        ["class-name"] = ' ',
-        ["function-name"] = ' ',
-        ["method-name"] = ' ',
-        ["container-name"] = 'ﮅ ',
-        ["tag-name"] = '炙',
+		["class-name"] = icons["class"],
+		["function-name"] = icons["function"],
+		["method-name"] = icons["method"],
+		["container-name"] = icons["namespace"],
+		["tag-name"] = icons["property"],
+		["property-name"] = icons["property"],
     },
     separator = ' > ',
     depth = 0,
     depth_limit_indicator = ".."
+
 }
 
 -- Languages specific default configuration must be added to configs
@@ -48,43 +86,43 @@ local function setup_language_configs()
     configs = {
         ["javascript"] = with_default_config({
             icons = {
-                ["array-name"] = ' ',
-                ["object-name"] = ' ',
+				["array-name"] = icons["array"],
+				["object-name"] = icons["object"],
             }
         }),
         ["json"] = with_default_config({
             icons = {
-                ["array-name"] = ' ',
-                ["object-name"] = ' ',
-                ["null-name"] = '[] ',
-                ["boolean-name"] = 'ﰰﰴ ',
-                ["number-name"] = '# ',
-                ["string-name"] = ' '
+                ["array-name"] = icons["array"],
+                ["object-name"] = icons["object"],
+				["null-name"] = icons["null"],
+				["boolean-name"] = icons["boolean"],
+				["number-name"] = icons["number"],
+				["string-name"] = icons["string"],
             }
         }),
         ["latex"] = with_default_config({
             icons = {
                 ["title-name"] = "# ",
-                ["label-name"] = " ",
+                ["label-name"] = icons["string"],
             },
         }),
         ["norg"] = with_default_config({
             icons = {
-                ["title-name"] = " ",
+                ["title-name"] = "#",
             },
         }),
         ["toml"] = with_default_config({
             icons = {
-                ["table-name"] = ' ',
-                ["array-name"] = ' ',
-                ["boolean-name"] = 'ﰰﰴ ',
-                ["date-name"] = ' ',
-                ["date-time-name"] = ' ',
-                ["float-name"] = ' ',
-                ["inline-table-name"] = ' ',
-                ["integer-name"] = '# ',
-                ["string-name"] = ' ',
-                ["time-name"] = ' '
+                ["table-name"] = icons["namespace"],
+                ["array-name"] = icons["array"],
+                ["boolean-name"] = icons["boolean"],
+                ["date-name"] = icons["date"],
+                ["date-time-name"] = icons["time"],
+                ["float-name"] = icons["flaot"],
+                ["inline-table-name"] = icons["namespace"],
+                ["integer-name"] = icons["number"],
+                ["string-name"] = icons["string"],
+                ["time-name"] = icons["time"]
             }
         }),
         ["verilog"] = with_default_config({
@@ -94,13 +132,13 @@ local function setup_language_configs()
         }),
         ["yaml"] = with_default_config({
             icons = {
-                ["mapping-name"] = ' ',
-                ["sequence-name"] = ' ',
-                ["null-name"] = '[] ',
-                ["boolean-name"] = 'ﰰﰴ ',
-                ["integer-name"] = '# ',
-                ["float-name"] = ' ',
-                ["string-name"] = ' '
+                ["mapping-name"] = icons["namespace"],
+                ["sequence-name"] = icons["list"],
+                ["null-name"] = icons["null"],
+                ["boolean-name"] = icons["boolean"],
+                ["integer-name"] = icons["number"],
+                ["float-name"] = icons["float"],
+                ["string-name"] = icons["string"],
             }
         }),
         ["yang"] = with_default_config({
@@ -272,7 +310,7 @@ function M.setup(user_config)
     default_config.separator = user_config.separator or default_config.separator
     default_config.disable_icons = user_config.disable_icons or default_config.disable_icons
     default_config.icons = vim.tbl_extend("force", default_config.icons, user_config["icons"] or {})
-    setup_language_configs()
+	setup_language_configs()
     default_config.depth = user_config.depth or default_config.depth
     default_config.depth_limit_indicator = user_config.depth_limit_indicator or default_config.depth_limit_indicator
 
@@ -439,7 +477,7 @@ function M.get_location(opts)
 
     local context = {}
     for _, v in pairs(data) do
-        if not disable_icons then
+        if not disable_icons and v.icon then
             table.insert(context, v.icon .. v.text)
         else
             table.insert(context, v.text)
